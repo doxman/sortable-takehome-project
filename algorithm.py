@@ -22,7 +22,7 @@ with open('products.txt', 'r') as productsFile:
             manufacturers[product['manufacturer']] = [product]
 
 
-
+# Loop through listings
 with open('listings.txt', 'r') as listingsFile:
     for line in listingsFile:
         listing = json.load(StringIO(line))
@@ -54,4 +54,11 @@ with open('listings.txt', 'r') as listingsFile:
 
         # Now add this to the best-match product's list
         results[products[maxIndex]['product_name']]['listings'].append(listing)
+
+
+# Output results
+with open('results.txt', 'w') as resultsFile:
+    for result in results.values():
+        json.dump(result, resultsFile)
+        resultsFile.write("\n")
 
