@@ -26,3 +26,32 @@ with open('products.txt', 'r') as productsFile:
 with open('listings.txt', 'r') as listingsFile:
     for line in listingsFile:
         listing = json.load(StringIO(line))
+
+        if listing['manufacturer'] not in manufacturers:
+            continue # If there's no manufacturer match, skip this to be safe
+
+        products = manufacturers[listing['manufacturer']]
+        matchingWeights = [0] * len(products)
+
+        currentMax = 0
+        maxIndex = 0
+
+        # Evaluate how well the listing matches each product
+        for idx, val in enumerate(products):
+            if listing['title'].find(val['product_name']) != -1:
+                matchingWeights[idx] += 4
+
+            if listing['title'].find(val['model']) != -1:
+                matchingWeights[idx] += 2
+
+            # The 'family' field is optional, so we need to be sure it exists
+            if 'family' in val and listing['title'].find(val['family']):
+                matchingWeights[idx] += 1
+
+            if matchingWeights[idx] > currentMax:
+                currentMax = matchingWeights[idx]
+                maxIndex = idx
+
+        # Now add this to the best-match product's list
+        results[products[maxIndex]['product_name']]['listings'].append(listing)
+
