@@ -1,15 +1,28 @@
 import json
 from StringIO import StringIO
 
-products = []
-listings = []
+manufacturers = {} # keys: manufacturer names, values: products with this manufacturer
+results = {} # keys: product names, values: result objects
 
-with open("products.txt", "r") as productsFile:
+# Loop through products
+with open('products.txt', 'r') as productsFile:
     for line in productsFile:
-        products.append(json.load(StringIO(line)))
+        product = json.load(StringIO(line))
+
+        # Add to results
+        results[product['product_name']] = {
+            'product_name': product['product_name'],
+            'listings': []
+        }
+
+        # Add to product array for this manufacturer, or create a new entry if we didn't have it yet
+        if product['manufacturer'] in manufacturers:
+            manufacturers[product['manufacturer']].append(product)
+        else:
+            manufacturers[product['manufacturer']] = [product]
 
 
-with open("listings.txt", "r") as listingsFile:
+
+with open('listings.txt', 'r') as listingsFile:
     for line in listingsFile:
-        listings.append(json.load(StringIO(line)))
-
+        listing = json.load(StringIO(line))
