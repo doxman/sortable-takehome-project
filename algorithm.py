@@ -37,10 +37,9 @@ with open('listings.txt', 'r') as listingsFile:
         maxIndex = 0
 
         # Evaluate how well the listing matches each product
+        # Assume that product_name is never actually matched (because of underscores, etc)
+        # Matching model + manufacturer is required, matching family is "nice-to-have"
         for idx, val in enumerate(products):
-            if listing['title'].find(val['product_name']) != -1:
-                matchingWeights[idx] += 4
-
             if listing['title'].find(val['model']) != -1:
                 matchingWeights[idx] += 2
 
@@ -52,6 +51,10 @@ with open('listings.txt', 'r') as listingsFile:
                 currentMax = matchingWeights[idx]
                 maxIndex = idx
 
+        # If we found no close matches, skip this listing
+        if currentMax <= 1:
+            continue
+
         # Now add this to the best-match product's list
         results[products[maxIndex]['product_name']]['listings'].append(listing)
 
@@ -61,4 +64,3 @@ with open('results.txt', 'w') as resultsFile:
     for result in results.values():
         json.dump(result, resultsFile)
         resultsFile.write("\n")
-
