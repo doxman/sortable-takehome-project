@@ -31,32 +31,29 @@ with open('listings.txt', 'r') as listingsFile:
             continue # If there's no manufacturer match, skip this to be safe
 
         products = manufacturers[listing['manufacturer']]
-        matchingWeights = [0] * len(products)
 
-        currentMax = 0
-        maxIndex = 0
+        matchIndex = -1
 
         # Evaluate how well the listing matches each product
         # Assume that product_name is never actually matched (because of underscores, etc)
-        # Matching model + manufacturer is required, matching family is "nice-to-have"
         for idx, val in enumerate(products):
-            if listing['title'].find(val['model']) != -1:
-                matchingWeights[idx] += 2
-
-            # The 'family' field is optional, so we need to be sure it exists
-            if 'family' in val and listing['title'].find(val['family']):
-                matchingWeights[idx] += 1
-
-            if matchingWeights[idx] > currentMax:
-                currentMax = matchingWeights[idx]
-                maxIndex = idx
+            if 'family' in val:
+                # family + model is sufficient in this case
+                if listing['title'].find(val['family'] + " " + val['model']) != -1:
+                    matchIndex = idx
+                    break
+            else:
+                # manufacturer + model is required
+                if listing['title'].find(val['manufacturer'] + " " + val['model']) != -1:
+                    matchIndex = idx
+                    break
 
         # If we found no close matches, skip this listing
-        if currentMax <= 1:
+        if matchIndex == -1:
             continue
 
         # Now add this to the best-match product's list
-        results[products[maxIndex]['product_name']]['listings'].append(listing)
+        results[products[matchIndex]['product_name']]['listings'].append(listing)
 
 
 # Output results
